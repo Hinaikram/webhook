@@ -10,7 +10,7 @@ pipeline {
 
         stage('Clone the GIT') {
             steps {
-                git branch: 'main', url: GITHUB_REPO
+                git branch: 'main', url: 'https://github.com/Hinaikram/webhook.git'
             }
         }
 

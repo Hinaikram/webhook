@@ -4,7 +4,7 @@ pipeline {
     environment {
         GITHUB_REPO = 'https://github.com/Hinaikram/webhook.git'
         S3_BUCKET = 'myawsbuckethina'
-        SERVER_IP = 'ubuntu@ec2-3-106-139-109.ap-southeast-2.compute.amazonaws.com
+        SERVER_IP = 'ubuntu@ec2-3-106-139-109.ap-southeast-2.compute.amazonaws.com'
         APP_NAME = 'index.html'
     }
     stages {

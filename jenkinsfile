@@ -13,14 +13,7 @@ pipeline {
             }
         }
         
-        stage('Update Index.html') {
-            steps {
-                script {
-                    sh 'rm -rf /var/www/html/*'
-                    sh 'cp -r . /var/www/html/'
-                }
-            }
-        }
+
 
         
     }

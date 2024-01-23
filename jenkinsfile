@@ -1,15 +1,7 @@
 pipeline {
     agent any
 
-    environment {
-        SSH_KEY = credentials('ubuntu (ServerlessPairkey1)')
-        GITHUB_REPO = 'https://github.com/Hinaikram/webhook.git'
-        S3_BUCKET = 'myawsbuckethina'
-        SERVER_IP = 'ubuntu@ec2-3-106-139-109.ap-southeast-2.compute.amazonaws.com'
-        APP_NAME = 'index.html'
-    }
-
-    stages {
+     stages {
         stage('Hello') {
             steps {
                 echo 'Hello World hello'

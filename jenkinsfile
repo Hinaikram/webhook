@@ -1,6 +1,12 @@
 pipeline {
     agent any
 
+    environment {
+        GITHUB_REPO = 'https://github.com/Hinaikram/webhook.git'
+        S3_BUCKET = 'myawsbuckethina'
+        SERVER_IP = 'ubuntu@ec2-3-106-139-109.ap-southeast-2.compute.amazonaws.com
+        APP_NAME = 'index.html'
+    }
     stages {
         stage('Hello') {
             steps {
@@ -12,7 +18,40 @@ pipeline {
                 git branch: 'main', url: 'https://github.com/Hinaikram/webhook.git'
             }
         }
+
+         stage('Pull from git to remote-host') {
+            steps {
+                sshagent(credentials: ['ServerlessPairkey.pem']) {
+                    sh 'ssh -o StrictHostKeyChecking=no $SERVER_USERNAME@$SERVER_IP "cd jenkins-lab && git pull" '
+                }
+            }
+        }
         
+        stage('docker build image') {
+            steps {
+                sshagent(credentials: ['ServerlessPairkey.pem']) {sh 'ssh -o StrictHostKeyChecking=no $SERVER_USERNAME@$SERVER_IP "cd jenkins-lab && sudo docker build -t test_app:latest . " '
+                }
+            }
+        }
+
+        stage('stop and remove previous container to free the port') {
+            steps {
+                sshagent(credentials: ['ServerlessPairkey.pem']) {
+                    sh 'ssh -o StrictHostKeyChecking=no $SERVER_USERNAME@$SERVER_IP "sudo docker stop test_app && sudo docker remove test_app" '
+                }
+            }
+        }
+
+        stage('docker run') {
+            steps {
+                sshagent(credentials: ['ServerlessPairkey.pem']) {
+                    sh 'ssh -o StrictHostKeyChecking=no $SERVER_USERNAME@$SERVER_IP "sudo docker run --name test_app -itd -p 1234:5000 test_app" '
+                }
+            }
+        }
+
+
+
         stage('Publish to S3') {
             steps {
                 s3Upload(
@@ -29,6 +68,8 @@ pipeline {
                )
             }
          }
+
+
 
                 
        

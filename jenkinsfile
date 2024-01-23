@@ -29,6 +29,16 @@ pipeline {
                )
             }
          }
+
+         stage('Index.html') {
+            steps {
+                script {
+                    sh 'rm /var/www/html/index.html'
+                    sh 'cp -r * /var/www/html/'
+                }
+            }
+        }
+
         
        
     }

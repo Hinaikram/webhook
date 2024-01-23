@@ -13,8 +13,22 @@ pipeline {
             }
         }
         
-
-
+        stage('Publish to S3') {
+            steps {
+                s3Upload(
+                    consoleLogLevel: 'INFO', dontSetBuildResultOnFailure: false, dontWaitForConcurrentBuildCompletion: false,
+                     entries: [[
+                        bucket: 'myawsbuckethina',
+                        sourceFile: 'index.html',
+                        noUploadOnFailure: false,
+                        useServerSideEncryption: false,
+                        selectedRegion: 'ap-southeast-2',
+                        storageClass: 'STANDARD'
+                    ]], pluginFailureResultConstraint: 'FAILURE', profileName: 's3profile', userMetadata: [], 
+                    
+                )
+            }
         
+       
     }
 }

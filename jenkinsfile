@@ -2,77 +2,77 @@ pipeline {
     agent any
 
     environment {
-        SSH_key = credentials ('ubuntu (ServerlessPairkey1)')
+        SSH_KEY = credentials('ubuntu (ServerlessPairkey1)')
         GITHUB_REPO = 'https://github.com/Hinaikram/webhook.git'
         S3_BUCKET = 'myawsbuckethina'
         SERVER_IP = 'ubuntu@ec2-3-106-139-109.ap-southeast-2.compute.amazonaws.com'
         APP_NAME = 'index.html'
     }
+
     stages {
         stage('Hello') {
             steps {
                 echo 'Hello World hello'
             }
         }
+
         stage('Clone the GIT') {
             steps {
-                git branch: 'main', url: 'https://github.com/Hinaikram/webhook.git'
+                git branch: 'main', url: GITHUB_REPO
             }
         }
 
-         stage('Pull from git') {
+        stage('Pull from git') {
             steps {
                 sshagent(['ubuntu (ServerlessPairkey1)']) {
-                    sh 'ssh -o StrictHostKeyChecking=no $SERVER_USERNAME@$SERVER_IP "cd jenkins-lab && git pull" '
+                    sh "ssh -o StrictHostKeyChecking=no $SERVER_IP 'cd jenkins-lab && git pull'"
                 }
             }
         }
-        
+
         stage('Building docker') {
             steps {
-                sshagent(['ubuntu (ServerlessPairkey1)']) {sh 'ssh -o StrictHostKeyChecking=no $SERVER_USERNAME@$SERVER_IP "cd jenkins-lab && sudo docker build -t test_app:latest . " '
+                sshagent(['ubuntu (ServerlessPairkey1)']) {
+                    sh "ssh -o StrictHostKeyChecking=no $SERVER_IP 'cd jenkins-lab && sudo docker build -t test_app:latest .'"
                 }
             }
         }
 
-        stage('deploy') {
+        stage('Deploy') {
             steps {
                 sshagent(['ubuntu (ServerlessPairkey1)']) {
-                    sh 'ssh -o StrictHostKeyChecking=no $SERVER_USERNAME@$SERVER_IP "sudo docker stop test_app && sudo docker remove test_app" '
+                    sh "ssh -o StrictHostKeyChecking=no $SERVER_IP 'sudo docker stop test_app && sudo docker rm test_app'"
                 }
             }
         }
 
-        stage('docker') {
+        stage('Docker') {
             steps {
                 sshagent(['ubuntu (ServerlessPairkey1)']) {
-                    sh 'ssh -o StrictHostKeyChecking=no $SERVER_USERNAME@$SERVER_IP "sudo docker run --name test_app -itd -p 1234:5000 test_app" '
+                    sh "ssh -o StrictHostKeyChecking=no $SERVER_IP 'sudo docker run --name test_app -itd -p 1234:5000 test_app'"
                 }
             }
         }
-
-
 
         stage('Publish to S3') {
             steps {
                 s3Upload(
-                    consoleLogLevel: 'INFO', dontSetBuildResultOnFailure: false, dontWaitForConcurrentBuildCompletion: false,
-                     entries: [[
-                        bucket: 'myawsbuckethina',
-                        sourceFile: 'index.html',
+                    entries: [[
+                        bucket: S3_BUCKET,
+                        sourceFile: APP_NAME,
                         noUploadOnFailure: false,
                         useServerSideEncryption: false,
                         selectedRegion: 'ap-southeast-2',
                         storageClass: 'STANDARD'
-                    ]], pluginFailureResultConstraint: 'FAILURE', profileName: 's3profile', userMetadata: [], 
-                    
-               )
+                    ]],
+                    consoleLogLevel: 'INFO',
+                    dontSetBuildResultOnFailure: false,
+                    dontWaitForConcurrentBuildCompletion: false,
+                    pluginFailureResultConstraint: 'FAILURE',
+                    profileName: 's3profile',
+                    userMetadata: []
+                )
             }
-         }
-
-
-
-                
-       
+        }
     }
 }

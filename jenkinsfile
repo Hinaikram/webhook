@@ -22,38 +22,7 @@ pipeline {
             }
         }
 
-        stage('Pull from git') {
-            steps {
-                sshagent(['ubuntu (ServerlessPairkey1)']) {
-                    sh "ssh -o StrictHostKeyChecking=no $SERVER_IP 'cd jenkins-lab && git pull'"
-                }
-            }
-        }
-
-        stage('Building docker') {
-            steps {
-                sshagent(['ubuntu (ServerlessPairkey1)']) {
-                    sh "ssh -o StrictHostKeyChecking=no $SERVER_IP 'cd jenkins-lab && sudo docker build -t test_app:latest .'"
-                }
-            }
-        }
-
-        stage('Deploy') {
-            steps {
-                sshagent(['ubuntu (ServerlessPairkey1)']) {
-                    sh "ssh -o StrictHostKeyChecking=no $SERVER_IP 'sudo docker stop test_app && sudo docker rm test_app'"
-                }
-            }
-        }
-
-        stage('Docker') {
-            steps {
-                sshagent(['ubuntu (ServerlessPairkey1)']) {
-                    sh "ssh -o StrictHostKeyChecking=no $SERVER_IP 'sudo docker run --name test_app -itd -p 1234:5000 test_app'"
-                }
-            }
-        }
-
+        
         stage('Publish to S3') {
             steps {
                 s3Upload(

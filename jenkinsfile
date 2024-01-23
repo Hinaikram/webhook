@@ -14,7 +14,7 @@ pipeline {
             }
         }
 
-        ('Publish to S3') {
+        stage ('Publish to S3') {
             steps {
                 s3Upload(
                     consoleLogLevel: 'INFO', dontSetBuildResultOnFailure: false, dontWaitForConcurrentBuildCompletion: false,

@@ -21,7 +21,7 @@ pipeline {
 
          stage('Pull from git') {
             steps {
-                sshagent(credentials: ['ServerlessPairkey.pem']) {
+                sshagent(credentials: ['ubuntu']) {
                     sh 'ssh -o StrictHostKeyChecking=no $SERVER_USERNAME@$SERVER_IP "cd jenkins-lab && git pull" '
                 }
             }
@@ -29,14 +29,14 @@ pipeline {
         
         stage('Building docker') {
             steps {
-                sshagent(credentials: ['ServerlessPairkey.pem']) {sh 'ssh -o StrictHostKeyChecking=no $SERVER_USERNAME@$SERVER_IP "cd jenkins-lab && sudo docker build -t test_app:latest . " '
+                sshagent(credentials: ['ubuntu']) {sh 'ssh -o StrictHostKeyChecking=no $SERVER_USERNAME@$SERVER_IP "cd jenkins-lab && sudo docker build -t test_app:latest . " '
                 }
             }
         }
 
         stage('deploy') {
             steps {
-                sshagent(credentials: ['ServerlessPairkey.pem']) {
+                sshagent(credentials: ['ubuntu']) {
                     sh 'ssh -o StrictHostKeyChecking=no $SERVER_USERNAME@$SERVER_IP "sudo docker stop test_app && sudo docker remove test_app" '
                 }
             }
@@ -44,7 +44,7 @@ pipeline {
 
         stage('docker') {
             steps {
-                sshagent(credentials: ['ServerlessPairkey.pem']) {
+                sshagent(credentials: ['ubuntu']) {
                     sh 'ssh -o StrictHostKeyChecking=no $SERVER_USERNAME@$SERVER_IP "sudo docker run --name test_app -itd -p 1234:5000 test_app" '
                 }
             }
